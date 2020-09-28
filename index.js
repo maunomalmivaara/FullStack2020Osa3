@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -5,8 +7,10 @@ const cors = require('cors')
 const app = express()
 
 app.use(express.json())
-app.use(cors())
 app.use(express.static('build'))
+app.use(cors())
+
+const Person = require('./models/person')
 
 //app.use(morgan('tiny'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :personDetails'))
@@ -44,7 +48,9 @@ app.get('/', (req, res) => {
 })
 //Get all persons:
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    Person.find({}).then(notes => {
+        res.json(notes)
+    })
 })
 //Get info page
 app.get('/info', (req, res) => {
@@ -54,16 +60,9 @@ app.get('/info', (req, res) => {
 })
 //Get single person page:
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-
-    const person = persons.find(p => p.id === id)
-
-    if (person) {
+    Person.findById(req.params.id).then(person => {
         res.json(person)
-    }
-    else {
-        res.status(400).end()
-    }
+    })
 })
 //Delete person:
 app.delete('/api/persons/:id', (req, res) => {
@@ -88,19 +87,15 @@ app.post('/api/persons', (req, res) => {
     }
     //If no errors:
     morgan(':method :url :status :res[content-length] - :response-time ms :personDetails')
-    const newPerson = {
+    const newPerson = new Person({
         name: body.name,
         number: body.number,
-        id: generateId()
-    }
+    })
     
-    persons = persons.concat(newPerson)
-    res.json(newPerson)
+    newPerson.save().then(savedPerson => {
+        res.json(savedPerson)
+    })
 })
-
-//Function for generting random person ID:
-const generateId = () => Math.floor(Math.random() * 10000000)
-
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
