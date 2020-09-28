@@ -1,2 +1,4 @@
 # FullStack2020Osa3
-Osan 3 palautukset
+Linkki herokussa olevaan sovellukseeni:
+
+https://maukan-puhelinluettelo.herokuapp.com/
