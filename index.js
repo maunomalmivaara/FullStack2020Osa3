@@ -14,7 +14,7 @@ const Person = require('./models/person')
 
 //app.use(morgan('tiny'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :personDetails'))
-morgan.token('personDetails', (req, res) => {
+morgan.token('personDetails', (req, ) => {
     if (Object.keys(req.body).length === 0) return
     return JSON.stringify(req.body)
 })
@@ -53,7 +53,7 @@ app.get('/api/persons/:id', (req, res, next) => {
 //Delete person:
 app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndRemove(req.params.id)
-        .then(result => {
+        .then(() => {
             res.status(204).end()
         })
         .catch(error => next(error))
@@ -74,7 +74,7 @@ app.post('/api/persons', (req, res, next) => {
         name: body.name,
         number: body.number,
     })
-    
+
     newPerson.save()
         .then(savedPerson => {
             res.json(savedPerson)
@@ -84,12 +84,12 @@ app.post('/api/persons', (req, res, next) => {
 //Update person's number:
 app.put('/api/persons/:id', (req, res, next) => {
     const body = req.body
-  
+
     const person = {
         name: body.name,
         number: body.number,
     }
-  
+
     Person.findByIdAndUpdate(req.params.id, person, { new: true })
         .then(updatedPerson => {
             res.json(updatedPerson)
@@ -97,15 +97,15 @@ app.put('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error))
 })
 
-const unknownEndpoint = (request, response) => {
-    response.status(404).send({ error: 'unknown endpoint' })
-  }
+const unknownEndpoint = (req, res) => {
+    res.status(404).send({ error: 'unknown endpoint' })
+}
 //Non-existent url handling:
 app.use(unknownEndpoint)
 
 const errorHandler = (error, req, res, next) => {
     console.error(error.message)
-  
+
     if (error.name === 'CastError') {
         return res.status(400).send({ error: 'malformatted id' })
     }
