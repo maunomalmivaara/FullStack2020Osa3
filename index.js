@@ -59,7 +59,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
         .catch(error => next(error))
 })
 //Add person:
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const body = req.body
 
     //Error handling:
@@ -75,9 +75,11 @@ app.post('/api/persons', (req, res) => {
         number: body.number,
     })
     
-    newPerson.save().then(savedPerson => {
-        res.json(savedPerson)
-    })
+    newPerson.save()
+        .then(savedPerson => {
+            res.json(savedPerson)
+        })
+        .catch(error => next(error))
 })
 //Update person's number:
 app.put('/api/persons/:id', (req, res, next) => {
@@ -101,13 +103,15 @@ const unknownEndpoint = (request, response) => {
 //Non-existent url handling:
 app.use(unknownEndpoint)
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, req, res, next) => {
     console.error(error.message)
   
     if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'malformatted id' })
+        return res.status(400).send({ error: 'malformatted id' })
     }
-  
+    else if (error.name === 'ValidationError') {
+        return res.status(400).json({ error: error.message })
+    }
     next(error)
 }
 //Custom error handling:

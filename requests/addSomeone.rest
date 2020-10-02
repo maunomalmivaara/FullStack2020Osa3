@@ -1,7 +1,7 @@
-POST https://maukan-puhelinluettelo.herokuapp.com/api/persons/
+POST http://localhost:3001/api/persons/
 Content-Type: application/json
 
 {
-    "name": "Kimi Raikkonen",
+    "name": "Mauno Malmivaara",
     "number": "0903300330"
 }
